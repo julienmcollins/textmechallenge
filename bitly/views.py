@@ -1,8 +1,3 @@
-# References: https://stackoverflow.com/questions/5129402/access-instance-passed-to-modelform-from-cleanself-method
-# https://docs.djangoproject.com/en/2.1/topics/forms/modelforms/#overriding-the-clean-method
-# 
-
-
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
