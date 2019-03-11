@@ -24,7 +24,15 @@ def index(request):
         if form.is_valid():
             # Get what was just inputted and create new url model
             input_url = form.cleaned_data['url']
+            output_short = form.cleaned_data['short']
             get_url = Url.objects.filter(url__startswith=input_url)
+            get_short = Url.objects.filter(short__startswith=output_short)
+            print (input_url)
+            print (output_short)
+            if output_short != "" and input_url == "":
+                url_id = get_url.first().id
+                print ("hello")
+                return HttpResponseRedirect(reverse('bitly:long', args=(url_id)))
             if not get_url:
                 form.save()
                 get_url = Url.objects.filter(url__startswith=input_url)
