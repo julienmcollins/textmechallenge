@@ -1,0 +1,6 @@
+<h1>{{ url.short }}</h1>
+<form action="{% url 'bitly:long' url.id %}" method="post">
+   {% csrf_token %}
+   {{ form }}
+   <input type="submit" value="Resolve">
+</form>

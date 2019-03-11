@@ -1,0 +1,5 @@
+<h1>{{ url.url }}</h1>
+<form action="{% url 'bitly:index' %}" method="post">
+   {% csrf_token %}
+   <input type="submit" value="Shorten another URL?">
+</form>
