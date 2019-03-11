@@ -8,6 +8,11 @@ class URLObject(models.Model):
     def __str__(self):
         return self.url_text
 """
+
+class UrlChoice(models.Model):
+    url = models.BooleanField()
+    short = models.BooleanField()
+
 class Url(models.Model):
     url = models.CharField(max_length=256)
     short = models.CharField(max_length=256, default='')

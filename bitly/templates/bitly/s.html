@@ -1,0 +1,9 @@
+{% for message in messages %}<p><strong>{{ message }}</strong></p>{% endfor %}
+
+<form action="{% url 'bitly:s' %}" method="post">
+   {% csrf_token %}
+   <div class="Short">
+      Shortened Link: {{ form.short }}
+      <input type="submit" value="Submit">
+   </div>
+</form>

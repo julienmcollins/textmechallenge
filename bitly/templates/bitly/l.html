@@ -1,0 +1,7 @@
+<form action="{% url 'bitly:l' %}" method="post">
+   {% csrf_token %}
+   <div class="URL">
+      URL: {{ form.url }}
+      <input type="submit" value="Submit">
+   </div>
+</form>

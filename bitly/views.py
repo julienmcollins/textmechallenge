@@ -7,8 +7,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from .forms import UrlForm
-from .models import Url
+from .forms import UrlForm, ChoiceForm, UrlFormChoice
+from .models import Url, UrlChoice
+
+from django.contrib import messages
 
 # Generic imports
 import random
@@ -18,21 +20,44 @@ def index(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request
+        form = UrlFormChoice(request.POST)
+
+        # check whether it's valid
+        if form.is_valid():
+            # Get what was just inputted and create new url model
+            result = form.cleaned_data
+
+            # Check for which one was clicked
+            if result['url']:
+                return HttpResponseRedirect(reverse('bitly:l'))
+            elif result['short']:
+                return HttpResponseRedirect(reverse('bitly:s'))
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = UrlFormChoice()
+
+    return render(request, 'bitly/index.html', {'form': form})
+
+def result(request, url_id):
+    url = get_object_or_404(Url, pk=url_id)
+    return render(request, 'bitly/result.html', {'url': url})
+
+def long(request, url_id):
+    url = get_object_or_404(Url, pk=url_id)
+    return render(request, 'bitly/long.html', {'url': url})
+
+def request_l(request):
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request
         form = UrlForm(request.POST)
 
         # check whether it's valid
         if form.is_valid():
             # Get what was just inputted and create new url model
             input_url = form.cleaned_data['url']
-            output_short = form.cleaned_data['short']
             get_url = Url.objects.filter(url__startswith=input_url)
-            get_short = Url.objects.filter(short__startswith=output_short)
-            print (input_url)
-            print (output_short)
-            if output_short != "" and input_url == "":
-                url_id = get_url.first().id
-                print ("hello")
-                return HttpResponseRedirect(reverse('bitly:long', args=(url_id)))
+            print (get_url)
             if not get_url:
                 form.save()
                 get_url = Url.objects.filter(url__startswith=input_url)
@@ -53,15 +78,32 @@ def index(request):
     else:
         form = UrlForm()
 
-    return render(request, 'bitly/index.html', {'form': form})
+    return render(request, 'bitly/l.html', {'form': form})
 
-def result(request, url_id):
-    url = get_object_or_404(Url, pk=url_id)
-    return render(request, 'bitly/result.html', {'url': url})
+def request_s(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request
+        form = ChoiceForm(request.POST)
 
-def long(request, url_id):
-    url = get_object_or_404(Url, pk=url_id)
-    return render(request, 'bitly/long.html', {'url': url})
+        # check whether it's valid
+        if form.is_valid():
+            # Get what was just inputted and create new url model
+            output_short = form.cleaned_data['short']
+            get_short = Url.objects.filter(short__startswith=output_short)
+            print(get_short)
+            if get_short:
+                url_id = get_short.first().id
+                return HttpResponseRedirect(reverse('bitly:long', args=(url_id,)))
+            else:
+                messages.error(request, 'username or password not correct')
+                render(request, 'bitly/s.html', {'form': form})
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ChoiceForm()
+
+    return render(request, 'bitly/s.html', {'form': form})
 
 # This will be the logic for the url shortening and resolving
 def shorten(url_id):
